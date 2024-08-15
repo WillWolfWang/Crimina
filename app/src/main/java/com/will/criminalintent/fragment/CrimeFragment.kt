@@ -3,6 +3,7 @@ package com.will.criminalintent.fragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,21 +48,23 @@ class CrimeFragment: Fragment() {
 
     override fun onStart() {
         super.onStart()
-        // 匿名内部类？
+        // 匿名内部类
+        // 如果在 onCreate 方法中监听，屏幕旋转时，会执行一次回调
         val titleWatcher = object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
+                Log.e("WillWolf", "beforeTextChanged-->")
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 crime.title = s.toString()
+                Log.e("WillWolf", "onTextChanged-->")
             }
 
             override fun afterTextChanged(s: Editable?) {
-
+                Log.e("WillWolf", "afterTextChanged-->")
             }
         }
-        // 视图监听器写在 onStart 中，可以避免因设备旋转，视图恢复后导致数据重置时触发监听器函数
+        // 视图监听器写在 onStart 中，可以避免因设备旋转，视图恢复后数据重置时 触发监听器函数
         etTitle.addTextChangedListener(titleWatcher)
 
         cbSolved.apply {
