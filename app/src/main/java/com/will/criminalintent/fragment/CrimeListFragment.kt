@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -62,7 +63,7 @@ class CrimeListFragment: Fragment() {
 
         val tvTitle: TextView = itemView.findViewById(R.id.tv_crimeTitle)
         val tvData: TextView = view.findViewById(R.id.tv_crimeDate)
-
+        val ivSolved: ImageView = itemView.findViewById(R.id.iv_crimeSolved)
         init {
             itemView.setOnClickListener(this)
         }
@@ -72,6 +73,11 @@ class CrimeListFragment: Fragment() {
             this.crime = crime
             tvTitle.text = crime.title
             tvData.text = crime.date.toString()
+            ivSolved.visibility = if (crime.isSolved) {
+                View.VISIBLE
+            } else{
+                View.GONE
+            }
         }
 
         override fun onClick(v: View) {
@@ -97,12 +103,14 @@ class CrimeListFragment: Fragment() {
         private val typeNormal = 1
         private val typeRequirePolice = 2
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            if (viewType == typeNormal) {
-                val view = layoutInflater.inflate(R.layout.item_list_crime, parent, false)
-                return CrimeHolder(view)
-            }
-            val view = layoutInflater.inflate(R.layout.item_list_crime_require_police, parent, false)
-            return CrimeHolderRequirePolice(view)
+//            if (viewType == typeNormal) {
+//                val view = layoutInflater.inflate(R.layout.item_list_crime, parent, false)
+//                return CrimeHolder(view)
+//            }
+//            val view = layoutInflater.inflate(R.layout.item_list_crime_require_police, parent, false)
+//            return CrimeHolderRequirePolice(view)
+            val view = layoutInflater.inflate(R.layout.item_list_crime, parent, false)
+            return CrimeHolder(view)
         }
 
         override fun getItemCount(): Int {
