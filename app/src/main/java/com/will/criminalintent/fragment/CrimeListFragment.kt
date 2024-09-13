@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,12 +27,7 @@ class CrimeListFragment: Fragment() {
 
     private lateinit var rvCrimeList : RecyclerView
 
-    private var adapter: CrimeAdapter? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.e("WillWolf", "Total crimes: ${crimeListViewModel.crimes.size}")
-    }
+    private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,13 +37,26 @@ class CrimeListFragment: Fragment() {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
         rvCrimeList = view.findViewById(R.id.rv_crime_list)
         rvCrimeList.layoutManager = LinearLayoutManager(context)
+        rvCrimeList.adapter = adapter
 
-        updateUI()
         return view
     }
 
-    private fun updateUI() {
-        val crimes = crimeListViewModel.crimes
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        crimeListViewModel.crimeListLiveData.observe(viewLifecycleOwner, Observer<List<Crime>> {
+                        crimes -> crimes?.let {
+                Log.e("WillWolf", "get crimes ${crimes.size}")
+                updateUI(crimes)
+            }
+//            override fun onChanged(value: List<Crime>) {
+//                Log.e("WillWolf", "get crimes ${value.size}")
+//                updateUI(value)
+//            }
+        })
+    }
+
+    private fun updateUI(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         rvCrimeList.adapter = adapter
     }
@@ -138,9 +147,9 @@ class CrimeListFragment: Fragment() {
 
         override fun getItemViewType(position: Int): Int {
             val crime = crimes.get(position)
-            if (crime.requiresPolice) {
-                return typeRequirePolice
-            }
+//            if (crime.requiresPolice) {
+//                return typeRequirePolice
+//            }
             return typeNormal
         }
     }
