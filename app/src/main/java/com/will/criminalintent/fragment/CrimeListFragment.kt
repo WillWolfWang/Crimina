@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
 import com.will.criminalintent.viewmodel.CrimeListViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class CrimeListFragment: Fragment() {
     private val crimeListViewModel: CrimeListViewModel by lazy {
@@ -64,6 +66,7 @@ class CrimeListFragment: Fragment() {
         val tvTitle: TextView = itemView.findViewById(R.id.tv_crimeTitle)
         val tvData: TextView = view.findViewById(R.id.tv_crimeDate)
         val ivSolved: ImageView = itemView.findViewById(R.id.iv_crimeSolved)
+        val dateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd EEE", Locale.getDefault())
         init {
             itemView.setOnClickListener(this)
         }
@@ -72,7 +75,8 @@ class CrimeListFragment: Fragment() {
         fun bind(crime: Crime) {
             this.crime = crime
             tvTitle.text = crime.title
-            tvData.text = crime.date.toString()
+//            tvData.text = crime.date.toString()
+            tvData.text = dateFormat.format(crime.date)
             ivSolved.visibility = if (crime.isSolved) {
                 View.VISIBLE
             } else{
