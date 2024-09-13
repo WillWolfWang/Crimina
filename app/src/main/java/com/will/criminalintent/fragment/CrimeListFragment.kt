@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,9 +56,26 @@ class CrimeListFragment: Fragment() {
 
     // CrimeHolder 的 构造函数先接收 view 参数，然后将其作为值传递给 RecyclerView.ViewHolder
     // 这样 ViewHolder 基类的 itemView 属性就可以引用 view 值
-    private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        private lateinit var crime: Crime
+
         val tvTitle: TextView = itemView.findViewById(R.id.tv_crimeTitle)
         val tvData: TextView = view.findViewById(R.id.tv_crimeDate)
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        // 数据和视图的绑定工作都放在 CrimeHolder 里处理
+        fun bind(crime: Crime) {
+            this.crime = crime
+            tvTitle.text = crime.title
+            tvData.text = crime.date.toString()
+        }
+
+        override fun onClick(v: View) {
+            Toast.makeText(context, "${crime.title}pressed!", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -73,10 +91,12 @@ class CrimeListFragment: Fragment() {
 
         override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
             val crime = crimes.get(position)
-            holder.apply {
-                tvTitle.text = crime.title
-                tvData.text = crime.date.toString()
-            }
+//            holder.apply {
+//                tvTitle.text = crime.title
+//                tvData.text = crime.date.toString()
+//            }
+            // 将职责进一步分开，adapter 不插手 ViewHolder 的内部工作和细节
+            holder.bind(crime)
         }
 
     }
