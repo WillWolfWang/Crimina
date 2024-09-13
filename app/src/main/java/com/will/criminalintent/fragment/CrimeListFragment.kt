@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
 import com.will.criminalintent.viewmodel.CrimeListViewModel
@@ -78,26 +79,57 @@ class CrimeListFragment: Fragment() {
         }
     }
 
+    private inner class CrimeHolderRequirePolice(view: View) : RecyclerView.ViewHolder(view) {
+        private lateinit var crime: Crime
 
-    private inner class CrimeAdapter(var crimes: List<Crime>): RecyclerView.Adapter<CrimeHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
-            val view = layoutInflater.inflate(R.layout.item_list_crime, parent, false)
-            return CrimeHolder(view)
+        val tvTitle: TextView = itemView.findViewById(R.id.tv_crimeTitle)
+        val tvData: TextView = view.findViewById(R.id.tv_crimeDate)
+
+        fun bind(crime: Crime) {
+            this.crime = crime
+            tvTitle.text = crime.title
+            tvData.text = crime.date.toString()
+        }
+    }
+
+
+    private inner class CrimeAdapter(var crimes: List<Crime>): RecyclerView.Adapter<ViewHolder>() {
+        private val typeNormal = 1
+        private val typeRequirePolice = 2
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            if (viewType == typeNormal) {
+                val view = layoutInflater.inflate(R.layout.item_list_crime, parent, false)
+                return CrimeHolder(view)
+            }
+            val view = layoutInflater.inflate(R.layout.item_list_crime_require_police, parent, false)
+            return CrimeHolderRequirePolice(view)
         }
 
         override fun getItemCount(): Int {
             return crimes.size
         }
 
-        override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
             val crime = crimes.get(position)
 //            holder.apply {
 //                tvTitle.text = crime.title
 //                tvData.text = crime.date.toString()
 //            }
-            // 将职责进一步分开，adapter 不插手 ViewHolder 的内部工作和细节
-            holder.bind(crime)
+            if (holder is CrimeHolder) {
+                // 将职责进一步分开，adapter 不插手 ViewHolder 的内部工作和细节
+                holder.bind(crime)
+            } else if (holder is CrimeHolderRequirePolice) {
+                holder.bind(crime)
+            }
         }
 
+        override fun getItemViewType(position: Int): Int {
+            val crime = crimes.get(position)
+            if (crime.requiresPolice) {
+                return typeRequirePolice
+            }
+            return typeNormal
+        }
     }
 }
