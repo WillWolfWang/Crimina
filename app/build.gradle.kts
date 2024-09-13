@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -49,6 +51,11 @@ android {
     }
 }
 
+//configurations {
+//    cleanedAnnotations
+//    implementation.exclude group: 'org.jetbrains' , module:'annotations'
+//}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -63,6 +70,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.room.runtime)
+    kapt (libs.androidx.room.compiler) // 使用 kapt，否则会有编译冲突，重复引用
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
