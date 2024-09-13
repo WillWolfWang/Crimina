@@ -1,11 +1,13 @@
 package com.will.criminalintent
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.will.criminalintent.fragment.CrimeFragment
 import com.will.criminalintent.fragment.CrimeListFragment
+import java.util.UUID
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -18,5 +20,9 @@ class MainActivity : AppCompatActivity() {
             add(R.id.fragment_container, fragment).
             commit()
         }
+    }
+
+    override fun onCrimeSelected(crimeId: UUID) {
+        Log.e("WillWolf", "MainActivity.onCrimeSelected: $crimeId")
     }
 }

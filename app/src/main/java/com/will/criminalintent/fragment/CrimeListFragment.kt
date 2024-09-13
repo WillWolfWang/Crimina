@@ -1,5 +1,6 @@
 package com.will.criminalintent.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,6 +20,7 @@ import com.will.criminalintent.data.Crime
 import com.will.criminalintent.viewmodel.CrimeListViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.UUID
 
 class CrimeListFragment: Fragment() {
     private val crimeListViewModel: CrimeListViewModel by lazy {
@@ -28,6 +30,11 @@ class CrimeListFragment: Fragment() {
     private lateinit var rvCrimeList : RecyclerView
 
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,6 +63,11 @@ class CrimeListFragment: Fragment() {
         })
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
     private fun updateUI(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         rvCrimeList.adapter = adapter
@@ -66,6 +78,13 @@ class CrimeListFragment: Fragment() {
             return CrimeListFragment()
         }
     }
+
+    private var callbacks: Callbacks? = null
+
+    interface Callbacks {
+        fun onCrimeSelected(crimeId: UUID)
+    }
+
 
     // CrimeHolder 的 构造函数先接收 view 参数，然后将其作为值传递给 RecyclerView.ViewHolder
     // 这样 ViewHolder 基类的 itemView 属性就可以引用 view 值
@@ -94,7 +113,8 @@ class CrimeListFragment: Fragment() {
         }
 
         override fun onClick(v: View) {
-            Toast.makeText(context, "${crime.title}pressed!", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(context, "${crime.title}pressed!", Toast.LENGTH_SHORT).show()
+            callbacks?.onCrimeSelected(crime.id)
         }
     }
 
