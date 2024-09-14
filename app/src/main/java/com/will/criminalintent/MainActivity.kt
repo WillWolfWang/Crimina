@@ -24,5 +24,8 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
     override fun onCrimeSelected(crimeId: UUID) {
         Log.e("WillWolf", "MainActivity.onCrimeSelected: $crimeId")
+        val fragment = CrimeFragment()
+        // 添加一个回退栈，否则按返回按钮，activity 会退出
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
     }
 }
