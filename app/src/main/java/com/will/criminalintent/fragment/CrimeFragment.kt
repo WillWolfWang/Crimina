@@ -64,6 +64,8 @@ class CrimeFragment: Fragment() {
         crimeDetailViewModel.crimeLiveData.observe(viewLifecycleOwner, Observer { crime ->
             crime?.let {
                 this.crime = crime
+                // 更新 UI 时，会看到勾选框被勾选的动画，这是因为勾选框被勾选是一个异步
+                // 操作的结果，首次启动时，数据库也正在查询，查询结束时，才对勾选框进行操作
                 updateUI()
             }
         })
@@ -99,7 +101,12 @@ class CrimeFragment: Fragment() {
     private fun updateUI() {
         etTitle.setText(crime.title)
         btnDate.setText(crime.date.toString())
-        cbSolved.isChecked = crime.isSolved
+//        cbSolved.isChecked = crime.isSolved
+        cbSolved.apply {
+            isChecked = crime.isSolved
+            // 跳过 checkbox 动画，直接显示勾选结果状态
+            jumpDrawablesToCurrentState()
+        }
     }
 
     companion object {
