@@ -2,7 +2,9 @@ package com.will.criminalintent.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.will.criminalintent.data.Crime
 import java.util.UUID
 
@@ -15,4 +17,11 @@ interface CrimeDao {
 
     @Query("select * from Crime where id = (:id)")
     fun getCrime(id: UUID): LiveData<Crime?>
+
+    // update 和 insert 注解不需要任何参数，room 会使用它们产生合适的 sql 操作命令
+    @Update
+    fun updateCrime(crime: Crime)
+
+    @Insert
+    fun addCrime(crime: Crime)
 }
