@@ -13,7 +13,9 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
+import java.util.UUID
 
+private const val ARG_GRIME_ID = "crime_id"
 class CrimeFragment: Fragment() {
     private lateinit var crime: Crime
     private lateinit var etTitle: EditText
@@ -23,6 +25,8 @@ class CrimeFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         crime = Crime()
+        val crimeId: UUID = arguments?.getSerializable(ARG_GRIME_ID) as UUID
+        Log.e("WillWolf", "args bundle crime ID: $crimeId")
     }
 
     // 该函数会实例化 fragment 视图的布局，然后将实例化的 View 返回给托管的 activity
@@ -69,6 +73,17 @@ class CrimeFragment: Fragment() {
 
         cbSolved.apply {
             setOnCheckedChangeListener { _, isChecked -> crime.isSolved = isChecked }
+        }
+    }
+
+    companion object {
+        fun newInstance(crimeId: UUID): CrimeFragment {
+            val args = Bundle().apply {
+                putSerializable(ARG_GRIME_ID, crimeId)
+            }
+            return CrimeFragment().apply {
+                arguments = args
+            }
         }
     }
 }
