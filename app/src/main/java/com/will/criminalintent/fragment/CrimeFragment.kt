@@ -11,8 +11,11 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
+import com.will.criminalintent.viewmodel.CrimeDetailViewModel
 import java.util.UUID
 
 private const val ARG_GRIME_ID = "crime_id"
@@ -21,12 +24,18 @@ class CrimeFragment: Fragment() {
     private lateinit var etTitle: EditText
     private lateinit var btnDate: Button
     private lateinit var cbSolved: CheckBox
+
+    private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
+        ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
+    }
+
     // fragment 的 onCreate 函数是 public 的
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         crime = Crime()
         val crimeId: UUID = arguments?.getSerializable(ARG_GRIME_ID) as UUID
         Log.e("WillWolf", "args bundle crime ID: $crimeId")
+        crimeDetailViewModel.loadCrime(crimeId)
     }
 
     // 该函数会实例化 fragment 视图的布局，然后将实例化的 View 返回给托管的 activity
@@ -48,6 +57,16 @@ class CrimeFragment: Fragment() {
 
         cbSolved = view.findViewById(R.id.cb_crime_solved)
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        crimeDetailViewModel.crimeLiveData.observe(viewLifecycleOwner, Observer { crime ->
+            crime?.let {
+                this.crime = crime
+                updateUI()
+            }
+        })
     }
 
     override fun onStart() {
@@ -72,8 +91,15 @@ class CrimeFragment: Fragment() {
         etTitle.addTextChangedListener(titleWatcher)
 
         cbSolved.apply {
+            // 这个 _ 是 view 参数，因为 view 未被用到，使用 _ 代替
             setOnCheckedChangeListener { _, isChecked -> crime.isSolved = isChecked }
         }
+    }
+
+    private fun updateUI() {
+        etTitle.setText(crime.title)
+        btnDate.setText(crime.date.toString())
+        cbSolved.isChecked = crime.isSolved
     }
 
     companion object {
