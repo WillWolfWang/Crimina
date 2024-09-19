@@ -98,6 +98,13 @@ class CrimeFragment: Fragment() {
         }
     }
 
+    // 用户离开 crime 明细界面，或者切换任务，比如按 home 键，或者使用 概览屏， home 旁边的按键，
+    //甚至内存不够进程被杀，在 onStop 函数中保存数据都能保证用户编辑数据不会丢失
+    override fun onStop() {
+        super.onStop()
+        crimeDetailViewModel.saveCrime(crime)
+    }
+
     private fun updateUI() {
         etTitle.setText(crime.title)
         btnDate.setText(crime.date.toString())
