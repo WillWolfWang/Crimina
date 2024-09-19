@@ -51,6 +51,8 @@ class CrimeListFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.e("WillWolf", "onViewCreated-->")
+        // 这里会回调两次，因为返回界面后，onViewCreated 又重xin注册了一次
         crimeListViewModel.crimeListLiveData.observe(viewLifecycleOwner, Observer<List<Crime>> {
                         crimes -> crimes?.let {
                 Log.e("WillWolf", "get crimes ${crimes.size}")
