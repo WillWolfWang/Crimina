@@ -49,6 +49,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    viewBinding {
+        this.enable = true
+    }
 }
 
 //configurations {
@@ -73,8 +77,9 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.material)
     implementation(libs.androidx.navigation.fragment)
-//    implementation(libs.navigation.fragment.ktx)
-//    implementation(libs.navigation.ui.ktx)
+    //  添加 协程依赖，否则看不到源码
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
     kapt (libs.androidx.room.compiler) // 使用 kapt，否则会有编译冲突，重复引用
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
