@@ -18,7 +18,7 @@ import com.will.criminalintent.data.Crime
 import com.will.criminalintent.viewmodel.CrimeDetailViewModel
 import java.util.UUID
 
-private const val ARG_GRIME_ID = "crime_id"
+public const val ARG_GRIME_ID = "crime_id"
 class CrimeFragment: Fragment() {
     private lateinit var crime: Crime
     private lateinit var etTitle: EditText
