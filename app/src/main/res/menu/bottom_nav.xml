@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--这里的 id 要和 home.xml 中定义的 fragment id 一致，否则 菜单点击无效果 -->
+    <item android:id="@+id/homeFragment" android:title="home" />
+    <item android:id="@+id/titleFragment" android:title="title" />
+    <item android:id="@+id/aboutFragment" android:title="about" />
+</menu>

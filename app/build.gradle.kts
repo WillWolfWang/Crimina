@@ -71,6 +71,10 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.material)
+    implementation(libs.androidx.navigation.fragment)
+//    implementation(libs.navigation.fragment.ktx)
+//    implementation(libs.navigation.ui.ktx)
     kapt (libs.androidx.room.compiler) // 使用 kapt，否则会有编译冲突，重复引用
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -79,5 +83,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
+    implementation (libs.androidx.navigation.fragment.ktx)
+    implementation (libs.androidx.navigation.ui.ktx)
 }
