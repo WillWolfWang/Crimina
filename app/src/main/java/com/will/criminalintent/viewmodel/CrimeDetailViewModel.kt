@@ -4,10 +4,15 @@ package com.will.criminalintent.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import com.will.criminalintent.data.Crime
 import com.will.criminalintent.database.CrimeRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class CrimeDetailViewModel(): ViewModel() {
@@ -35,5 +40,24 @@ class CrimeDetailViewModel(): ViewModel() {
 
     fun saveCrime(crime: Crime) {
         crimeRepository.updateCrime(crime)
+    }
+
+    fun launchTest() {
+        viewModelScope.launch {
+            // 切到后台线程，执行任务
+            val result = withContext(Dispatchers.IO) {
+                "my value"
+            }
+            // 主线程显示结果
+            println(result)
+        }
+    }
+
+    var num: LiveData<Int> = liveData{
+        val result = withContext(Dispatchers.IO) {
+            24
+        }
+        println(result.toString() + ", " + Thread.currentThread().name)
+        emit(result)
     }
 }

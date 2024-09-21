@@ -3,7 +3,11 @@ package com.will.criminalintent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import com.will.criminalintent.databinding.ActivityCoroutineBinding
+import com.will.criminalintent.viewmodel.CrimeDetailViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
@@ -32,6 +36,9 @@ import kotlin.concurrent.thread
 
 class CoroutineActivity: AppCompatActivity() {
 
+    val detailViewMode: CrimeDetailViewModel by lazy {
+        ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityCoroutineBinding.inflate(layoutInflater)
@@ -55,8 +62,18 @@ class CoroutineActivity: AppCompatActivity() {
 //            withTimeOutTest()
 //            fetchDoc()
 //            catchException()
-            supervisorJobTest()
+//            supervisorJobTest()
 
+//            lifecycleScope.launch {
+//                log("lifecycleScope")
+//            }
+
+//            lifecycle.coroutineScope.launch {
+//                log("coroutineScope")
+//            }
+        }
+        detailViewMode.num.observe(this) {
+            log("it--> $it")
         }
     }
 

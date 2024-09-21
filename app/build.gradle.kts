@@ -80,6 +80,7 @@ dependencies {
     //  添加 协程依赖，否则看不到源码
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
     kapt (libs.androidx.room.compiler) // 使用 kapt，否则会有编译冲突，重复引用
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
