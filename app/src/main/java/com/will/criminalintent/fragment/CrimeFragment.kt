@@ -16,13 +16,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
 import com.will.criminalintent.viewmodel.CrimeDetailViewModel
+import java.util.Date
 import java.util.UUID
 
 public const val ARG_GRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
 
 private const val REQUEST_DATE = 0
-class CrimeFragment: Fragment() {
+class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var crime: Crime
     private lateinit var etTitle: EditText
     private lateinit var btnDate: Button
@@ -103,12 +104,13 @@ class CrimeFragment: Fragment() {
         btnDate.setOnClickListener(){
             // 创建 DatePickerFragment 对象，调用 apply 扩展函数
             DatePickerFragment.newInstance(crime.date).apply {
-                // 建立 fragment 之间的联系
-//                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                // 建立 fragment 之间的联系，下面需要更换为 parentFragmentManager，
+                // 因为需要用同一个 fragmentManager 进行管理，DatePickerFragment 是在
+                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
 
                 // 这里需要从 CrimeFragment 中调用 childFragmentManager
                 // 如果不加 this 标签，会使用 DatePickerFragment 的 FragmentManager，会产生错误
-                show(this@CrimeFragment.childFragmentManager, DIALOG_DATE)
+                show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
             }
         }
     }
@@ -140,5 +142,10 @@ class CrimeFragment: Fragment() {
                 arguments = args
             }
         }
+    }
+
+    override fun onDateSelected(date: Date) {
+        crime.date = date
+        updateUI()
     }
 }

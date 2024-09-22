@@ -3,9 +3,12 @@ package com.will.criminalintent.fragment
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import java.util.Calendar
 import java.util.Date
+import java.util.GregorianCalendar
 
 // 使用 DialogFragment 包装一下，这样在设备发生旋转时，Dialog 对话框会重建
 
@@ -20,7 +23,15 @@ class DatePickerFragment: DialogFragment() {
         var initialMonth = calendar.get(Calendar.MONTH)
         var initialDay = calendar.get(Calendar.DAY_OF_MONTH)
 
-        return DatePickerDialog(requireContext(), null, initialYear, initialMonth, initialDay)
+        val dateListener = DatePickerDialog.OnDateSetListener {
+            v:DatePicker, year: Int, month: Int, day:Int ->
+
+            var resultDate: Date = GregorianCalendar(year, month, day).time
+            targetFragment?.let {
+                fragment: Fragment -> (fragment as Callbacks).onDateSelected(resultDate)
+            }
+        }
+        return DatePickerDialog(requireContext(), dateListener, initialYear, initialMonth, initialDay)
     }
 
     // 使用伴生对象创建单例模式
@@ -33,5 +44,9 @@ class DatePickerFragment: DialogFragment() {
                 arguments = args
             }
         }
+    }
+
+    interface Callbacks {
+        fun onDateSelected(date: Date)
     }
 }
