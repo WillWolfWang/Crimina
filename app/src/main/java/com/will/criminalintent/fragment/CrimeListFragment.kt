@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -40,6 +42,11 @@ class CrimeListFragment: Fragment() {
         callbacks = context as Callbacks?
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -72,6 +79,15 @@ class CrimeListFragment: Fragment() {
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+    }
+
+    // onCreateOptionsMenu 函数由 FragmentManager 负责调用的。
+    // 所以当 activity 接收到操作系统的 onCreateOptionsMenu 函数回调请求时，
+    // 我们必须明确告诉 FragmentManager，其管理的 fragment 应接收 onCreateOptionsMenu
+    // 函数的调用指令。需要在 onCreate 方法中，调用 setHasOptionsMenu 方法
+     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_crime_list, menu)
     }
 
     private fun updateUI(crimes: List<Crime>) {

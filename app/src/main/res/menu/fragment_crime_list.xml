@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/new_crime"
+        android:title="@string/new_crime"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="ifRoom|withText"
+        />
+    <!--
+    showAsAction
+
+    用于指定菜单项是显示在应用栏上，还是隐藏于溢出菜单中
+     ifRoom withText
+     只要空间足够，菜单项图标及其文字描述都会显示在应用栏上
+     如果空间仅够显示菜单项图标，文件描述就不会显示；
+     如果空间大小不够显示任何项，菜单项就会隐藏到溢出菜单中
+
+     如果溢出菜单包含其他项，它们会以三个点表示
+
+     还有两个属性 always 不推荐
+     never 对于不常用的菜单，never 是个不错的选择
+     -->
+</menu>
