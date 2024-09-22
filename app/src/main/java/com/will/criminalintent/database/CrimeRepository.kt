@@ -3,6 +3,8 @@ package com.will.criminalintent.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.will.criminalintent.data.Crime
 import java.util.UUID
 import java.util.concurrent.Executors
@@ -23,7 +25,19 @@ class CrimeRepository private constructor(context: Context){
         }
     }
 
-    private val database: CrimeDatabase = Room.databaseBuilder(context.applicationContext, CrimeDatabase::class.java, DATABASE_NAME).build()
+
+    // 创建一个 Migration 对象更新数据库
+    val migration_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE Crime ADD COLUMN suspect TEXT NOT NULL DEFAULT''")
+        }
+    }
+
+    private val database: CrimeDatabase =
+        Room.databaseBuilder(context.applicationContext,
+            CrimeDatabase::class.java, DATABASE_NAME)
+            .addMigrations(migration_1_2) // 数据库升级
+            .build()
 
     private val crimeDao = database.crimeDao()
 
