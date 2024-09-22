@@ -53,7 +53,7 @@ class CoroutineActivity: AppCompatActivity() {
 //                getDocs()
 //            }
 //            coroutineName();
-//            cancelTest()
+            cancelTest()
 //            cannotCancelTest()
 //            tryTest()
 //            nonCancelableTest()
@@ -72,9 +72,9 @@ class CoroutineActivity: AppCompatActivity() {
 //                log("coroutineScope")
 //            }
         }
-        detailViewMode.num.observe(this) {
-            log("it--> $it")
-        }
+//        detailViewMode.num.observe(this) {
+//            log("it--> $it")
+//        }
     }
 
     // 启动协程的方法
@@ -203,13 +203,15 @@ class CoroutineActivity: AppCompatActivity() {
 
     fun cancelTest() {
         runBlocking {
-            val job = launch(Dispatchers.Default) {
-                repeat(1000) { num ->
-                    log("job: I'm sleep $num..")
-                    delay(500)
+            val job = launch(newSingleThreadContext("nn")) {
+                repeat(10) { num ->
+                    launch {
+                        log("job: I'm sleep $num")
+                        delay(500)
+                    }
                 }
             }
-            delay(1300)
+            delay(5000)
             log("main try to waiting!")
             job.cancel()
             job.join()

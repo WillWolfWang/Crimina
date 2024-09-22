@@ -19,6 +19,7 @@ import com.will.criminalintent.viewmodel.CrimeDetailViewModel
 import java.util.UUID
 
 public const val ARG_GRIME_ID = "crime_id"
+private const val DIALOG_DATE = "DialogDate"
 class CrimeFragment: Fragment() {
     private lateinit var crime: Crime
     private lateinit var etTitle: EditText
@@ -50,10 +51,10 @@ class CrimeFragment: Fragment() {
 
         etTitle = view.findViewById<EditText>(R.id.et_crime_title)
         btnDate = view.findViewById(R.id.btn_crime_date)
-        btnDate.apply {
-            text = crime.date.toString()
-            isEnabled = false
-        }
+//        btnDate.apply {
+//            text = crime.date.toString()
+//            isEnabled = false
+//        }
 
         cbSolved = view.findViewById(R.id.cb_crime_solved)
         return view
@@ -77,16 +78,16 @@ class CrimeFragment: Fragment() {
         // 如果在 onCreate 方法中监听，屏幕旋转时，会执行一次回调
         val titleWatcher = object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                Log.e("WillWolf", "beforeTextChanged-->")
+//                Log.e("WillWolf", "beforeTextChanged-->")
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 crime.title = s.toString()
-                Log.e("WillWolf", "onTextChanged-->")
+//                Log.e("WillWolf", "onTextChanged-->")
             }
 
             override fun afterTextChanged(s: Editable?) {
-                Log.e("WillWolf", "afterTextChanged-->")
+//                Log.e("WillWolf", "afterTextChanged-->")
             }
         }
         // 视图监听器写在 onStart 中，可以避免因设备旋转，视图恢复后数据重置时 触发监听器函数
@@ -95,6 +96,15 @@ class CrimeFragment: Fragment() {
         cbSolved.apply {
             // 这个 _ 是 view 参数，因为 view 未被用到，使用 _ 代替
             setOnCheckedChangeListener { _, isChecked -> crime.isSolved = isChecked }
+        }
+
+        btnDate.setOnClickListener(){
+            // 创建 DatePickerFragment 对象，调用 apply 扩展函数
+            DatePickerFragment().apply {
+                // 这里需要从 CrimeFragment 中调用 childFragmentManager
+                // 如果不加 this 标签，会使用 DatePickerFragment 的 FragmentManager，会产生错误
+                show(this@CrimeFragment.childFragmentManager, DIALOG_DATE)
+            }
         }
     }
 
