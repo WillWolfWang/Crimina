@@ -9,6 +9,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -40,6 +41,9 @@ class CrimeListFragment: Fragment(), MenuProvider {
 
     private lateinit var rvCrimeList : RecyclerView
 
+    private lateinit var tvCrimeHint: TextView
+    private lateinit var btnAddCrime: Button
+
     private var adapter: CrimeAdapter? = CrimeAdapter()
 
     override fun onAttach(context: Context) {
@@ -62,6 +66,17 @@ class CrimeListFragment: Fragment(), MenuProvider {
         rvCrimeList.layoutManager = LinearLayoutManager(context)
         rvCrimeList.adapter = adapter
 
+        tvCrimeHint = view.findViewById(R.id.tv_emptyMsg)
+        btnAddCrime = view.findViewById(R.id.btn_addCrime)
+        btnAddCrime.setOnClickListener {
+            val crime = Crime()
+            crimeListViewModel.addCrime(crime)
+            // 跳到详情页
+            val bundle = Bundle()
+            bundle.putSerializable(ARG_GRIME_ID, crime.id)
+            // 传递 bundle 值给 fragment
+            findNavController().navigate(R.id.action_crimeListFragment_to_crimeFragment, bundle)
+        }
         return view
     }
 
@@ -79,6 +94,10 @@ class CrimeListFragment: Fragment(), MenuProvider {
 //                updateUI(value)
 //            }
         })
+        // 如果需要修改菜单内容，调用该函数可以触发 onCreateOptionsMenu 回调函数来达到目的
+        // 在 onCreateOptionsMenu 回调函数里，修改菜单内容后，回调一结束，修改就立刻生效
+//        activity?.invalidateOptionsMenu()
+
         // 需要添加 Lifecycle 状态监听，否则每次返回来，就会添加一次 menu
         val menuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
@@ -101,6 +120,15 @@ class CrimeListFragment: Fragment(), MenuProvider {
     private fun updateUI(crimes: List<Crime>) {
 //        val newList = mutableListOf<Crime>()
 //        newList.addAll(crimes)
+        if (crimes.isEmpty()) {
+            tvCrimeHint.visibility = View.VISIBLE
+            btnAddCrime.visibility = View.VISIBLE
+            rvCrimeList.visibility = View.INVISIBLE
+        } else {
+            tvCrimeHint.visibility = View.GONE
+            btnAddCrime.visibility = View.GONE
+            rvCrimeList.visibility = View.VISIBLE
+        }
         adapter?.submitList(crimes)
     }
 
