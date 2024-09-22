@@ -32,8 +32,8 @@ class DatePickerFragment: DialogFragment() {
 //                fragment: Fragment -> (fragment as Callbacks).onDateSelected(resultDate)
 //            }
             var bundle = Bundle()
-            bundle.putSerializable("WillWolf", resultDate)
-            parentFragmentManager.setFragmentResult("WillWolf", bundle)
+            bundle.putSerializable("Date", resultDate)
+            parentFragmentManager.setFragmentResult("Date", bundle)
         }
         return DatePickerDialog(requireContext(), dateListener, initialYear, initialMonth, initialDay)
     }

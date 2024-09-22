@@ -66,14 +66,19 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         cbSolved = view.findViewById(R.id.cb_crime_solved)
 
         // 两边的 key 需要保持一致，否则会收不到消息
-        childFragmentManager.setFragmentResultListener("WillWolf", this, object : FragmentResultListener {
+        childFragmentManager.setFragmentResultListener("Date", this, object : FragmentResultListener {
             override fun onFragmentResult(requestKey: String, result: Bundle) {
                 Log.e("WillWolf", "requestKey: $requestKey " + result.getSerializable(requestKey))
                 crime.date = result.getSerializable(requestKey) as Date
                 updateUI()
             }
-
         })
+        childFragmentManager.setFragmentResultListener("Time", this, object : FragmentResultListener {
+            override fun onFragmentResult(requestKey: String, result: Bundle) {
+                btnTime.text = result.getString(requestKey)
+            }
+        })
+
         return view
     }
 
