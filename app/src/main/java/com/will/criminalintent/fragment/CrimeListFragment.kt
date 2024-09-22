@@ -6,13 +6,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -28,7 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
 
-class CrimeListFragment: Fragment() {
+class CrimeListFragment: Fragment(), MenuProvider {
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this).get(CrimeListViewModel::class.java)
     }
@@ -42,10 +47,10 @@ class CrimeListFragment: Fragment() {
         callbacks = context as Callbacks?
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+////        setHasOptionsMenu(true)
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,6 +79,9 @@ class CrimeListFragment: Fragment() {
 //                updateUI(value)
 //            }
         })
+        // 需要添加 Lifecycle 状态监听，否则每次返回来，就会添加一次 menu
+        val menuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDetach() {
@@ -85,10 +93,10 @@ class CrimeListFragment: Fragment() {
     // 所以当 activity 接收到操作系统的 onCreateOptionsMenu 函数回调请求时，
     // 我们必须明确告诉 FragmentManager，其管理的 fragment 应接收 onCreateOptionsMenu
     // 函数的调用指令。需要在 onCreate 方法中，调用 setHasOptionsMenu 方法
-     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_crime_list, menu)
-    }
+//     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        super.onCreateOptionsMenu(menu, inflater)
+//        inflater.inflate(R.menu.fragment_crime_list, menu)
+//    }
 
     private fun updateUI(crimes: List<Crime>) {
 //        val newList = mutableListOf<Crime>()
@@ -208,5 +216,13 @@ class CrimeListFragment: Fragment() {
 //            }
             return typeNormal
         }
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.fragment_crime_list, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return true
     }
 }
