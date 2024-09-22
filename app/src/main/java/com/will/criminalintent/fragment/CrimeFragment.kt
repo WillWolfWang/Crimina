@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.will.criminalintent.R
@@ -60,6 +61,16 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 //        }
 
         cbSolved = view.findViewById(R.id.cb_crime_solved)
+
+        // 两边的 key 需要保持一致，否则会收不到消息
+        childFragmentManager.setFragmentResultListener("WillWolf", this, object : FragmentResultListener {
+            override fun onFragmentResult(requestKey: String, result: Bundle) {
+                Log.e("WillWolf", "requestKey: $requestKey " + result.getSerializable(requestKey))
+                crime.date = result.getSerializable(requestKey) as Date
+                updateUI()
+            }
+
+        })
         return view
     }
 
@@ -106,11 +117,11 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             DatePickerFragment.newInstance(crime.date).apply {
                 // 建立 fragment 之间的联系，下面需要更换为 parentFragmentManager，
                 // 因为需要用同一个 fragmentManager 进行管理，DatePickerFragment 是在
-                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+//                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
 
                 // 这里需要从 CrimeFragment 中调用 childFragmentManager
                 // 如果不加 this 标签，会使用 DatePickerFragment 的 FragmentManager，会产生错误
-                show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
+                show(this@CrimeFragment.childFragmentManager, DIALOG_DATE)
             }
         }
     }

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
@@ -27,9 +28,12 @@ class DatePickerFragment: DialogFragment() {
             v:DatePicker, year: Int, month: Int, day:Int ->
 
             var resultDate: Date = GregorianCalendar(year, month, day).time
-            targetFragment?.let {
-                fragment: Fragment -> (fragment as Callbacks).onDateSelected(resultDate)
-            }
+//            targetFragment?.let {
+//                fragment: Fragment -> (fragment as Callbacks).onDateSelected(resultDate)
+//            }
+            var bundle = Bundle()
+            bundle.putSerializable("WillWolf", resultDate)
+            parentFragmentManager.setFragmentResult("WillWolf", bundle)
         }
         return DatePickerDialog(requireContext(), dateListener, initialYear, initialMonth, initialDay)
     }
