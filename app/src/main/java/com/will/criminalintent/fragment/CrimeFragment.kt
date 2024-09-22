@@ -22,12 +22,14 @@ import java.util.UUID
 
 public const val ARG_GRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
+private const val DIALOG_TIME = "DialogTime"
 
 private const val REQUEST_DATE = 0
 class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var crime: Crime
     private lateinit var etTitle: EditText
     private lateinit var btnDate: Button
+    private lateinit var btnTime: Button
     private lateinit var cbSolved: CheckBox
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
@@ -55,6 +57,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 
         etTitle = view.findViewById<EditText>(R.id.et_crime_title)
         btnDate = view.findViewById(R.id.btn_crime_date)
+        btnTime = view.findViewById(R.id.btn_crime_time)
 //        btnDate.apply {
 //            text = crime.date.toString()
 //            isEnabled = false
@@ -122,6 +125,12 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                 // 这里需要从 CrimeFragment 中调用 childFragmentManager
                 // 如果不加 this 标签，会使用 DatePickerFragment 的 FragmentManager，会产生错误
                 show(this@CrimeFragment.childFragmentManager, DIALOG_DATE)
+            }
+        }
+
+        btnTime.setOnClickListener() {
+            TimePickerFragment().apply {
+                show(this@CrimeFragment.childFragmentManager, DIALOG_TIME)
             }
         }
     }
