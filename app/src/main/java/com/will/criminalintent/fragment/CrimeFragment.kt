@@ -20,6 +20,8 @@ import java.util.UUID
 
 public const val ARG_GRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
+
+private const val REQUEST_DATE = 0
 class CrimeFragment: Fragment() {
     private lateinit var crime: Crime
     private lateinit var etTitle: EditText
@@ -100,7 +102,10 @@ class CrimeFragment: Fragment() {
 
         btnDate.setOnClickListener(){
             // 创建 DatePickerFragment 对象，调用 apply 扩展函数
-            DatePickerFragment().apply {
+            DatePickerFragment.newInstance(crime.date).apply {
+                // 建立 fragment 之间的联系
+//                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+
                 // 这里需要从 CrimeFragment 中调用 childFragmentManager
                 // 如果不加 this 标签，会使用 DatePickerFragment 的 FragmentManager，会产生错误
                 show(this@CrimeFragment.childFragmentManager, DIALOG_DATE)
