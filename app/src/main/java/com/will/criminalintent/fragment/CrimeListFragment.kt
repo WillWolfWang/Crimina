@@ -223,6 +223,17 @@ class CrimeListFragment: Fragment(), MenuProvider {
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.new_crime -> {
+                val crime = Crime()
+                crimeListViewModel.addCrime(crime)
+                // 跳到详情页
+                val bundle = Bundle()
+                bundle.putSerializable(ARG_GRIME_ID, crime.id)
+                // 传递 bundle 值给 fragment
+                findNavController().navigate(R.id.action_crimeListFragment_to_crimeFragment, bundle)
+            }
+        }
         return true
     }
 }

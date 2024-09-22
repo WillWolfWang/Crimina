@@ -19,4 +19,9 @@ class CrimeListViewModel: ViewModel() {
 
     private val crimeRepository = CrimeRepository.get()
     val crimeListLiveData = crimeRepository.getCrimes()
+
+    // 添加一个增加 Crime 的方法
+    fun addCrime(crime: Crime) {
+        crimeRepository.addCrime(crime)
+    }
 }
