@@ -1,8 +1,10 @@
 package com.will.criminalintent.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,12 +27,14 @@ private const val DIALOG_DATE = "DialogDate"
 private const val DIALOG_TIME = "DialogTime"
 
 private const val REQUEST_DATE = 0
+private const val DATE_FORMAT = "EEE,MMM,dd"
 class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var crime: Crime
     private lateinit var etTitle: EditText
     private lateinit var btnDate: Button
     private lateinit var btnTime: Button
     private lateinit var cbSolved: CheckBox
+    private lateinit var btnReport: Button
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
@@ -78,6 +82,8 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                 btnTime.text = result.getString(requestKey)
             }
         })
+
+        btnReport = view.findViewById(R.id.btn_crimeReport)
 
         return view
     }
@@ -138,6 +144,17 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                 show(this@CrimeFragment.childFragmentManager, DIALOG_TIME)
             }
         }
+
+        btnReport.setOnClickListener {
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                // 这个是 Intent 中定义的常量，所以响应 该 Intent 的 activity 也都知道这些常量
+                putExtra(Intent.EXTRA_TEXT, getCrimeReport())
+                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject))
+            }.also {intent ->
+                startActivity(intent)
+            }
+        }
     }
 
     // 用户离开 crime 明细界面，或者切换任务，比如按 home 键，或者使用 概览屏， home 旁边的按键，
@@ -156,6 +173,22 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             // 跳过 checkbox 动画，直接显示勾选结果状态
             jumpDrawablesToCurrentState()
         }
+    }
+
+    private fun getCrimeReport(): String {
+        val solvedString = if (crime.isSolved) {
+            getString(R.string.crime_report_solved)
+        } else {
+            getString(R.string.crime_report_unsolved)
+        }
+
+        val dateString = DateFormat.format(DATE_FORMAT, crime.date).toString()
+        val suspect = if (crime.suspect.isBlank()) {
+            getString(R.string.crime_report_no_suspect)
+        } else {
+            getString(R.string.crime_report_suspect, crime.suspect)
+        }
+        return getString(R.string.crime_report, crime.title, dateString, solvedString, suspect)
     }
 
     companion object {
