@@ -152,7 +152,10 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                 putExtra(Intent.EXTRA_TEXT, getCrimeReport())
                 putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject))
             }.also {intent ->
-                startActivity(intent)
+//                startActivity(intent)
+                // 展示多个可选应用列表，从列表中选择想要的应用
+               val chooserIntent = Intent.createChooser(intent, getString(R.string.send_report))
+                startActivity(chooserIntent)
             }
         }
     }
