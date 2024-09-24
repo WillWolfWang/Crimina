@@ -2,6 +2,8 @@ package com.will.criminalintent.fragment
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -201,6 +203,15 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             setOnClickListener{
 //                startActivityForResult(pickContactIntent, REQUEST_CONTACT)
                 requestDataLauncher.launch(pickContactIntent)
+            }
+            // 对要启动的 activity 做一个是否存在的判断
+             val packageManger: PackageManager = requireActivity().packageManager
+            // resolveActivity 可以找到匹配给定 Intent 任务的 activity，flag 标志 MATCH_DEFAULT_ONLY
+            // 限定只搜索带 cate_gory_default 标志的 activity
+            val resolvedActivity: ResolveInfo? = packageManger.resolveActivity(pickContactIntent, PackageManager.MATCH_DEFAULT_ONLY)
+            // 找不到禁用按钮，否则应用崩溃
+            if (resolvedActivity == null) {
+                isEnabled = false
             }
         }
     }
