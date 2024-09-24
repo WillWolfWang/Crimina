@@ -1,7 +1,10 @@
 package com.will.criminalintent.fragment
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
@@ -27,6 +30,7 @@ private const val DIALOG_DATE = "DialogDate"
 private const val DIALOG_TIME = "DialogTime"
 
 private const val REQUEST_DATE = 0
+private const val REQUEST_CONTACT = 1
 private const val DATE_FORMAT = "EEE,MMM,dd"
 class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var crime: Crime
@@ -35,6 +39,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var btnTime: Button
     private lateinit var cbSolved: CheckBox
     private lateinit var btnReport: Button
+    private lateinit var btnSuspect: Button
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
@@ -84,6 +89,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         })
 
         btnReport = view.findViewById(R.id.btn_crimeReport)
+        btnSuspect = view.findViewById(R.id.btn_crimeSuspect)
 
         return view
     }
@@ -98,6 +104,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                 updateUI()
             }
         })
+        Log.e("WillWolf", "onViewCreate-->")
     }
 
     override fun onStart() {
@@ -158,6 +165,14 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                 startActivity(chooserIntent)
             }
         }
+
+        btnSuspect.apply {
+            val pickContactIntent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+
+            setOnClickListener{
+                startActivityForResult(pickContactIntent, REQUEST_CONTACT)
+            }
+        }
     }
 
     // 用户离开 crime 明细界面，或者切换任务，比如按 home 键，或者使用 概览屏， home 旁边的按键，
@@ -175,6 +190,9 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             isChecked = crime.isSolved
             // 跳过 checkbox 动画，直接显示勾选结果状态
             jumpDrawablesToCurrentState()
+        }
+        if (crime.suspect.isNotEmpty()) {
+            btnSuspect.text = crime.suspect
         }
     }
 
@@ -208,5 +226,30 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     override fun onDateSelected(date: Date) {
         crime.date = date
         updateUI()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when {
+            resultCode != Activity.RESULT_OK -> return
+
+            requestCode == REQUEST_CONTACT && data != null -> {
+                val contactUri: Uri? = data.data
+                val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+                val cursor = requireActivity().contentResolver.query(contactUri!!,
+                    queryFields, null, null, null)
+                cursor?.use {
+                    if (it.count == 0) {
+                        return
+                    }
+                    it.moveToFirst()
+                    val suspect = it.getString(0)
+                    crime.suspect = suspect
+                    crimeDetailViewModel.saveCrime(crime)
+                    btnSuspect.text = suspect
+                }
+            }
+        }
+        Log.e("WillWolf", "onActivityResult-->")
     }
 }
