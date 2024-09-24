@@ -15,6 +15,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
@@ -44,6 +47,32 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
     }
+    // 新方式的 startActivityForLauncher
+    private val requestDataLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult(), object : ActivityResultCallback<ActivityResult?> {
+        override fun onActivityResult(result: ActivityResult?) {
+            when {
+                result?.resultCode != Activity.RESULT_OK -> return
+
+                result.data != null -> {
+                    val contactUri: Uri? = result.data!!.data
+                    val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+                    val cursor = requireActivity().contentResolver.query(contactUri!!,
+                        queryFields, null, null, null)
+                    cursor?.use {
+                        if (it.count == 0) {
+                            return
+                        }
+                        it.moveToFirst()
+                        val suspect = it.getString(0)
+                        crime.suspect = suspect
+                        crimeDetailViewModel.saveCrime(crime)
+                        btnSuspect.text = suspect
+                    }
+                }
+            }
+        }
+
+    })
 
     // fragment 的 onCreate 函数是 public 的
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -170,7 +199,8 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             val pickContactIntent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
 
             setOnClickListener{
-                startActivityForResult(pickContactIntent, REQUEST_CONTACT)
+//                startActivityForResult(pickContactIntent, REQUEST_CONTACT)
+                requestDataLauncher.launch(pickContactIntent)
             }
         }
     }
@@ -226,30 +256,5 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     override fun onDateSelected(date: Date) {
         crime.date = date
         updateUI()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when {
-            resultCode != Activity.RESULT_OK -> return
-
-            requestCode == REQUEST_CONTACT && data != null -> {
-                val contactUri: Uri? = data.data
-                val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
-                val cursor = requireActivity().contentResolver.query(contactUri!!,
-                    queryFields, null, null, null)
-                cursor?.use {
-                    if (it.count == 0) {
-                        return
-                    }
-                    it.moveToFirst()
-                    val suspect = it.getString(0)
-                    crime.suspect = suspect
-                    crimeDetailViewModel.saveCrime(crime)
-                    btnSuspect.text = suspect
-                }
-            }
-        }
-        Log.e("WillWolf", "onActivityResult-->")
     }
 }
