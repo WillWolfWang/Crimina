@@ -1,5 +1,6 @@
 package com.will.criminalintent.fragment
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,6 +21,7 @@ import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
@@ -45,6 +47,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var cbSolved: CheckBox
     private lateinit var btnReport: Button
     private lateinit var btnSuspect: Button
+    private lateinit var btnCall: Button
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
@@ -57,7 +60,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 
                 result.data != null -> {
                     val contactUri: Uri? = result.data!!.data
-                    val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+                    val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts._ID)
                     val cursor = requireActivity().contentResolver.query(contactUri!!,
                         queryFields, null, null, null)
                     cursor?.use {
@@ -69,11 +72,34 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                         crime.suspect = suspect
                         crimeDetailViewModel.saveCrime(crime)
                         btnSuspect.text = suspect
+
+                        val contactId: String = it.getString(1)
+                        Log.e("WillWolf", "contactId-->" + contactId)
+
+                        var cursorPhone = requireActivity().contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null)
+
+                        if (cursorPhone?.moveToNext() == true) {
+                            var index = cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                            if (index > 0) {
+                                val mPhone: String = cursorPhone.getString(index)
+                                btnCall.setText("call:" + mPhone);
+                            }
+                        }
+
                     }
                 }
             }
         }
+    })
 
+    // 请求获取访问联系人权限
+    private val requestPermission = registerForActivityResult(ActivityResultContracts.RequestPermission(), object : ActivityResultCallback<Boolean> {
+        override fun onActivityResult(result: Boolean) {
+            if (result) {
+                // 获取联系人电话
+            }
+        }
     })
 
     // fragment 的 onCreate 函数是 public 的
@@ -121,6 +147,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 
         btnReport = view.findViewById(R.id.btn_crimeReport)
         btnSuspect = view.findViewById(R.id.btn_crimeSuspect)
+        btnCall = view.findViewById(R.id.btn_crimeReportCall)
 
         return view
     }
@@ -213,6 +240,23 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             if (resolvedActivity == null) {
                 isEnabled = false
             }
+        }
+
+        btnCall.apply {
+            setOnClickListener {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermission.launch(Manifest.permission.READ_CONTACTS)
+                } else {
+                    // Intent Action_dial 播好电话等待用户打出
+                    // Intent action_call 直接打出
+                    var intent = Intent(Intent.ACTION_DIAL)
+                    var uri = Uri.parse("tel:" + 138)
+                    intent.setData(uri)
+                    startActivity(intent)
+                }
+
+            }
+
         }
     }
 
