@@ -13,6 +13,7 @@ import com.will.criminalintent.database.CrimeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.UUID
 
 class CrimeDetailViewModel(): ViewModel() {
@@ -40,6 +41,10 @@ class CrimeDetailViewModel(): ViewModel() {
 
     fun saveCrime(crime: Crime) {
         crimeRepository.updateCrime(crime)
+    }
+
+    fun getPhotoFile(crime: Crime): File {
+        return crimeRepository.getPhotoFile(crime)
     }
 
     fun launchTest() {

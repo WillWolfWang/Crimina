@@ -8,6 +8,7 @@ import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
@@ -18,10 +19,13 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
@@ -29,6 +33,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
 import com.will.criminalintent.viewmodel.CrimeDetailViewModel
+import java.io.File
 import java.util.Date
 import java.util.UUID
 
@@ -38,6 +43,7 @@ private const val DIALOG_TIME = "DialogTime"
 
 private const val REQUEST_DATE = 0
 private const val REQUEST_CONTACT = 1
+private const val REQUEST_PHOTO = 2
 private const val DATE_FORMAT = "EEE,MMM,dd"
 class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var crime: Crime
@@ -48,6 +54,10 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var btnReport: Button
     private lateinit var btnSuspect: Button
     private lateinit var btnCall: Button
+    private lateinit var btnPhoto: ImageButton
+    private lateinit var ivPhoto: ImageView
+    private lateinit var photoFile: File
+    private lateinit var photoUri: Uri
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
@@ -148,7 +158,42 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         btnReport = view.findViewById(R.id.btn_crimeReport)
         btnSuspect = view.findViewById(R.id.btn_crimeSuspect)
         btnCall = view.findViewById(R.id.btn_crimeReportCall)
-
+        btnPhoto = view.findViewById(R.id.btn_photo)
+        ivPhoto = view.findViewById(R.id.iv_photo)
+        btnPhoto.apply {
+//            val file = requireActivity().getExternalFilesDir("")
+//            Log.e("WillWolf", "file-->" + file?.absolutePath)
+            // 拍照按钮触发拍照，相机 Intent 定义在 MediaStore 里，这个类负责处理
+            // 所有与多媒体相关的任务，
+            val packageManager = requireActivity().packageManager
+            // 发送带 MediaStore.ACTION_IMAGE_CAPTURE 操作的 intent，Android 会启动相机
+            // activity 拍照
+            // 默认只能拍摄缩略图这样的低分辨率照片，照片会保存在 onActivityResult() 返回的
+            // Intent 对象里
+            val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val resolvedActivity: ResolveInfo? =
+                packageManager.resolveActivity(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
+            Log.e("WillWolf", "resolvedActivity-->" + resolvedActivity)
+            if (resolvedActivity == null) {
+                isEnabled = false
+            }
+            setOnClickListener{
+                Log.e("WillWolf", "photo click-->")
+                // 要想获得全尺寸照片，就要让它使用文件系统存储照片，可以通过
+                // 传入保存在 MediaStore.EXTRA_OUTPUT 中指向存储路径的 Uri 来完成
+                // 这个 Uri 会指向 FileProvider 提供的位置
+                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                val  cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
+                for (cameraActivity in cameraActivities) {
+                    // 要写入文件，需要给相机应用权限，需要授予 FLAG_GRANT_WRITE_URI_PERMISSION
+                    // 给所有 camera-image intent 的目标 activity，以此允许它们在 Uri 指定的位置写文件
+                    // 前提条件是，声明 FileProvider 的时候添加过 android:grantUriPermission 属性
+                    requireActivity().grantUriPermission(cameraActivity.activityInfo.packageName,
+                        photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                }
+                startActivityForResult(captureImage, REQUEST_PHOTO)
+            }
+        }
         return view
     }
 
@@ -157,6 +202,13 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         crimeDetailViewModel.crimeLiveData.observe(viewLifecycleOwner, Observer { crime ->
             crime?.let {
                 this.crime = crime
+                photoFile = crimeDetailViewModel.getPhotoFile(crime)
+                // FileProvider.getUriForFile 会把本地文件路径转换为相机能使用的 Uri 形式
+                // 三个参数分别是 context，provider 授权，图片文件路径
+                // 授权要和  manifest 文件里的相匹配
+                photoUri = FileProvider.getUriForFile(requireActivity(),
+                    "com.will.criminalintent.fileprovider", photoFile)
+
                 // 更新 UI 时，会看到勾选框被勾选的动画，这是因为勾选框被勾选是一个异步
                 // 操作的结果，首次启动时，数据库也正在查询，查询结束时，才对勾选框进行操作
                 updateUI()

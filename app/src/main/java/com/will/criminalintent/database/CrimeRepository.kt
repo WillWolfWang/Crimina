@@ -1,16 +1,20 @@
 package com.will.criminalintent.database
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.will.criminalintent.data.Crime
+import java.io.File
 import java.util.UUID
 import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "crime-database"
 class CrimeRepository private constructor(context: Context){
+
+    private val filesDir = context.applicationContext.filesDir
     companion object {
         private var INSTANCE: CrimeRepository? = null
 
@@ -57,5 +61,10 @@ class CrimeRepository private constructor(context: Context){
         executor.execute {
             crimeDao.addCrime(crime)
         }
+    }
+
+    fun getPhotoFile(crime: Crime): File {
+        Log.e("WillWolf", "filesDir-->" + filesDir.absolutePath)
+        return File(filesDir, crime.photoFileName)
     }
 }
