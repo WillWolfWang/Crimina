@@ -32,6 +32,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
+import com.will.criminalintent.utils.getScaledBitmap
 import com.will.criminalintent.viewmodel.CrimeDetailViewModel
 import java.io.File
 import java.util.Date
@@ -112,6 +113,18 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         }
     })
 
+    // 有一个专门用于拍照的 ActivityResultContracts
+    private val capturePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture(), object : ActivityResultCallback<Boolean> {
+        override fun onActivityResult(result: Boolean) {
+            if (result) {
+                // 撤销刚刚授予的拍照写权限
+                requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                updatePhotoView()
+            }
+        }
+
+    })
+
     // fragment 的 onCreate 函数是 public 的
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -173,7 +186,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             val resolvedActivity: ResolveInfo? =
                 packageManager.resolveActivity(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
-            Log.e("WillWolf", "resolvedActivity-->" + resolvedActivity)
+
             if (resolvedActivity == null) {
                 isEnabled = false
             }
@@ -182,7 +195,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                 // 要想获得全尺寸照片，就要让它使用文件系统存储照片，可以通过
                 // 传入保存在 MediaStore.EXTRA_OUTPUT 中指向存储路径的 Uri 来完成
                 // 这个 Uri 会指向 FileProvider 提供的位置
-                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+//                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
                 val  cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
                 for (cameraActivity in cameraActivities) {
                     // 要写入文件，需要给相机应用权限，需要授予 FLAG_GRANT_WRITE_URI_PERMISSION
@@ -191,7 +204,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
                     requireActivity().grantUriPermission(cameraActivity.activityInfo.packageName,
                         photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 }
-                startActivityForResult(captureImage, REQUEST_PHOTO)
+                capturePhotoLauncher.launch(photoUri)
             }
         }
         return view
@@ -319,6 +332,12 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         crimeDetailViewModel.saveCrime(crime)
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        // 撤销刚刚授予的拍照写权限
+        requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    }
+
     private fun updateUI() {
         etTitle.setText(crime.title)
         btnDate.setText(crime.date.toString())
@@ -330,6 +349,18 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         }
         if (crime.suspect.isNotEmpty()) {
             btnSuspect.text = crime.suspect
+        }
+
+        updatePhotoView()
+    }
+
+    // 更新 photoView
+    private fun updatePhotoView() {
+        if (photoFile.exists()) {
+            val bitmap = getScaledBitmap(photoFile.path, requireActivity())
+            ivPhoto.setImageBitmap(bitmap)
+        } else {
+            ivPhoto.setImageDrawable(null)
         }
     }
 
