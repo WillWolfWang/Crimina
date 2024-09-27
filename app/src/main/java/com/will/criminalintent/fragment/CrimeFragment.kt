@@ -41,6 +41,7 @@ import java.util.UUID
 public const val ARG_GRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
 private const val DIALOG_TIME = "DialogTime"
+private const val DIALOG_PHOTO = "DialogPhoto"
 
 private const val REQUEST_DATE = 0
 private const val REQUEST_CONTACT = 1
@@ -173,6 +174,11 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         btnCall = view.findViewById(R.id.btn_crimeReportCall)
         btnPhoto = view.findViewById(R.id.btn_photo)
         ivPhoto = view.findViewById(R.id.iv_photo)
+        ivPhoto.setOnClickListener{
+            val photoDialogFragment = PhotoDialogFragment.newInstance(photoFile.path)
+            photoDialogFragment.show(childFragmentManager, DIALOG_PHOTO)
+        }
+
         btnPhoto.apply {
 //            val file = requireActivity().getExternalFilesDir("")
 //            Log.e("WillWolf", "file-->" + file?.absolutePath)
