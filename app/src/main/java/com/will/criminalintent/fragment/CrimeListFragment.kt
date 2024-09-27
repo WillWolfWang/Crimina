@@ -2,6 +2,7 @@ package com.will.criminalintent.fragment
 
 import android.content.Context
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -29,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.will.criminalintent.R
 import com.will.criminalintent.data.Crime
+import com.will.criminalintent.utils.MyUtils
 import com.will.criminalintent.viewmodel.CrimeListViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -77,6 +79,16 @@ class CrimeListFragment: Fragment(), MenuProvider {
             // 传递 bundle 值给 fragment
             findNavController().navigate(R.id.action_crimeListFragment_to_crimeFragment, bundle)
         }
+
+//        MediaStore.getExternalVolumeNames(context!!).forEach { volumeName ->
+//            Log.e("WillWolf", "getExternalVolumeNames-->" + volumeName)
+//            val mediaDir = context!!.getExternalFilesDir(volumeName)
+//            // 使用 mediaDir
+//            Log.e("WillWolf", "mediaDir-->" + mediaDir)
+//        }
+
+//        MyUtils.MyTest(context)
+
         return view
     }
 
