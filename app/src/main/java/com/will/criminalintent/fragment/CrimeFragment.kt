@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -60,6 +61,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     private lateinit var ivPhoto: ImageView
     private lateinit var photoFile: File
     private lateinit var photoUri: Uri
+    private var isLayoutReady = false;
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
@@ -120,7 +122,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             if (result) {
                 // 撤销刚刚授予的拍照写权限
                 requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                updatePhotoView()
+                updatePhotoView(ivPhoto.width, ivPhoto.height)
             }
         }
 
@@ -178,6 +180,18 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             val photoDialogFragment = PhotoDialogFragment.newInstance(photoFile.path)
             photoDialogFragment.show(childFragmentManager, DIALOG_PHOTO)
         }
+        // 照片控件获取 viewTreeObserver，添加监听器
+        ivPhoto.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                Log.e("WillWolf", "addOnGlobalLayoutListener-->" + ivPhoto.width + ", " + ivPhoto.height)
+                ivPhoto.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                isLayoutReady = true;
+                if (::photoFile.isInitialized) {
+                    updatePhotoView(ivPhoto.width, ivPhoto.height)
+                }
+            }
+
+        })
 
         btnPhoto.apply {
 //            val file = requireActivity().getExternalFilesDir("")
@@ -356,14 +370,16 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         if (crime.suspect.isNotEmpty()) {
             btnSuspect.text = crime.suspect
         }
-
-        updatePhotoView()
+        Log.e("WillWolf", "width-->" + ivPhoto.width + ", " + ivPhoto.height)
+        if (isLayoutReady) {
+            updatePhotoView(ivPhoto.width, ivPhoto.height)
+        }
     }
 
     // 更新 photoView
-    private fun updatePhotoView() {
+    private fun updatePhotoView(width: Int, height: Int) {
         if (photoFile.exists()) {
-            val bitmap = getScaledBitmap(photoFile.path, requireActivity())
+            val bitmap = getScaledBitmap(photoFile.path, width, height)
             ivPhoto.setImageBitmap(bitmap)
         } else {
             ivPhoto.setImageDrawable(null)
