@@ -360,7 +360,8 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 
     private fun updateUI() {
         etTitle.setText(crime.title)
-        btnDate.setText(crime.date.toString())
+
+        btnDate.setText(DateFormat.getDateFormat(context).format(crime.date))
 //        cbSolved.isChecked = crime.isSolved
         cbSolved.apply {
             isChecked = crime.isSolved
