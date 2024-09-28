@@ -19,11 +19,17 @@
                 android:layout_height="80dp"
                 android:scaleType="centerInside"
                 android:cropToPadding="true"
+                android:contentDescription="@string/crime_photo_no_image_description"
                 android:background="@android:color/darker_gray"/>
+            <!--在增加视听障碍阅读提醒时，有些 view，比如 ImageView 没有做可聚焦登记，
+            需要手动登记，设置 android:focusable:true 或使用监听器都可以，也可以使用
+             contentDescription 让部件可聚焦-->
+
             <ImageButton
                 android:id="@+id/btn_photo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/crime_photo_button_description"
                 android:src="@android:drawable/ic_menu_camera"/>
         </LinearLayout>
 
