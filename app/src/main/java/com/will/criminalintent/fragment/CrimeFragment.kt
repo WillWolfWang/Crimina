@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
@@ -160,8 +161,13 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         // 两边的 key 需要保持一致，否则会收不到消息
         childFragmentManager.setFragmentResultListener("Date", this, object : FragmentResultListener {
             override fun onFragmentResult(requestKey: String, result: Bundle) {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
+                    crime.date = result.getSerializable(requestKey, Date::class.java) as Date
+                } else{
+                    crime.date = result.getSerializable(requestKey) as Date
+                }
                 Log.e("WillWolf", "requestKey: $requestKey " + result.getSerializable(requestKey))
-                crime.date = result.getSerializable(requestKey) as Date
+
                 updateUI()
             }
         })

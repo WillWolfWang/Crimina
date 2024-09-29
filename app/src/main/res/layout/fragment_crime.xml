@@ -61,6 +61,14 @@
         style="?android:listSeparatorTextViewStyle"
         android:text="@string/crime_details_label" />
 
+    <TextView
+        android:id="@+id/tv_crimeDateLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:labelFor="@+id/btn_crime_date"/>
+    <!--labelFro 属性表明，新加的 TextView 就是指定 ID 的视图的标签-->
+
     <Button
         android:id="@+id/btn_crime_date"
         android:layout_width="match_parent"
