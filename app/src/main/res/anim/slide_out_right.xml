@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <translate
+        android:fromXDelta="0"
+    android:toXDelta="100%p"
+    android:duration="300" />        <!-- 动画持续时间为 300 毫秒 -->
+    <!-- 从视图的原始位置开始 -->
+    <!-- 移动到屏幕的右侧外部 -->
+</set>

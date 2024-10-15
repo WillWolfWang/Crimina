@@ -10,7 +10,9 @@
         android:label="HomeFragment" >
         <action
             android:id="@+id/action_homeFragment_to_titleFragment"
-            app:destination="@id/titleFragment" />
+            app:destination="@id/titleFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/titleFragment"
